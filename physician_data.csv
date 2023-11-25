@@ -1,0 +1,51 @@
+physician_id,name,specialization,facility,city
+5001,Doctor 1,Pediatrics,Facility 8,Salem
+5002,Doctor 2,Pediatrics,Facility 2,San Francisco
+5003,Doctor 3,General,Facility 1,Los Angeles
+5004,Doctor 4,Pediatrics,Facility 11,Seattle
+5005,Doctor 5,Cardiology,Facility 11,Seattle
+5006,Doctor 6,General,Facility 1,Los Angeles
+5007,Doctor 7,Orthopedics,Facility 3,San Diego
+5008,Doctor 8,Pediatrics,Facility 1,Los Angeles
+5009,Doctor 9,Neurology,Facility 13,Tacoma
+5010,Doctor 10,Orthopedics,Facility 3,San Diego
+5011,Doctor 11,Cardiology,Facility 11,Seattle
+5012,Doctor 12,Neurology,Facility 4,Sacramento
+5013,Doctor 13,Pediatrics,Facility 12,Spokane
+5014,Doctor 14,Orthopedics,Facility 12,Spokane
+5015,Doctor 15,Pediatrics,Facility 11,Seattle
+5016,Doctor 16,General,Facility 8,Salem
+5017,Doctor 17,General,Facility 15,Olympia
+5018,Doctor 18,Orthopedics,Facility 3,San Diego
+5019,Doctor 19,Neurology,Facility 13,Tacoma
+5020,Doctor 20,General,Facility 2,San Francisco
+5021,Doctor 21,Pediatrics,Facility 9,Bend
+5022,Doctor 22,Cardiology,Facility 8,Salem
+5023,Doctor 23,Neurology,Facility 1,Los Angeles
+5024,Doctor 24,Neurology,Facility 3,San Diego
+5025,Doctor 25,Cardiology,Facility 3,San Diego
+5026,Doctor 26,Neurology,Facility 4,Sacramento
+5027,Doctor 27,Pediatrics,Facility 6,Portland
+5028,Doctor 28,Orthopedics,Facility 4,Sacramento
+5029,Doctor 29,Orthopedics,Facility 11,Seattle
+5030,Doctor 30,Neurology,Facility 15,Olympia
+5031,Doctor 31,General,Facility 13,Tacoma
+5032,Doctor 32,General,Facility 7,Eugene
+5033,Doctor 33,Orthopedics,Facility 6,Portland
+5034,Doctor 34,Cardiology,Facility 8,Salem
+5035,Doctor 35,Pediatrics,Facility 4,Sacramento
+5036,Doctor 36,Cardiology,Facility 7,Eugene
+5037,Doctor 37,Pediatrics,Facility 8,Salem
+5038,Doctor 38,Orthopedics,Facility 9,Bend
+5039,Doctor 39,General,Facility 14,Vancouver
+5040,Doctor 40,Orthopedics,Facility 2,San Francisco
+5041,Doctor 41,Neurology,Facility 14,Vancouver
+5042,Doctor 42,Neurology,Facility 10,Medford
+5043,Doctor 43,Neurology,Facility 5,Fresno
+5044,Doctor 44,Pediatrics,Facility 7,Eugene
+5045,Doctor 45,General,Facility 1,Los Angeles
+5046,Doctor 46,Orthopedics,Facility 8,Salem
+5047,Doctor 47,General,Facility 7,Eugene
+5048,Doctor 48,General,Facility 6,Portland
+5049,Doctor 49,Pediatrics,Facility 9,Bend
+5050,Doctor 50,Neurology,Facility 8,Salem
