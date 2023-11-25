@@ -1,0 +1,190 @@
+import pandas as pd
+import numpy as np
+import random
+from datetime import datetime, timedelta
+pd.options.display.max_rows = 1000
+
+num_entries = 8000
+
+# Patient Data
+cities_in_california = ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento', 'Fresno']
+cities_in_oregon = ['Portland', 'Eugene', 'Salem', 'Bend', 'Medford']
+cities_in_washington = ['Seattle', 'Spokane', 'Tacoma', 'Vancouver', 'Olympia']
+all_cities = cities_in_california + cities_in_oregon + cities_in_washington
+all_states = ['California'] * len(cities_in_california) + ['Oregon'] * len(cities_in_oregon) + ['Washington'] * len(cities_in_washington)
+def get_state_for_city(city):
+    if city in cities_in_california:
+        return 'California'
+    elif city in cities_in_oregon:
+        return 'Oregon'
+    elif city in cities_in_washington:
+        return 'Washington'
+patient_data = pd.DataFrame({
+    'patient_id': range(1, num_entries + 1),
+    'name': [f'Patient {i}' for i in range(1, num_entries + 1)],
+    'age': [random.randint(18, 90) for _ in range(num_entries)],
+    'gender': [random.choice(['Female', 'Male']) for _ in range(num_entries)],
+    'city': [random.choice(all_cities) for _ in range(num_entries)],
+})
+patient_data['state'] = patient_data['city'].apply(get_state_for_city)
+
+
+# Insurance Data
+insurance_info = pd.DataFrame({
+    'insurance_id': range(2001, 2001 + num_entries),
+    'patient_id': range(1, num_entries + 1),
+    'provider': ['Provider ' + str(random.randint(1, 10)) for _ in range(num_entries)],
+    'policy_number': [f'PN{i:04d}' for i in range(1, num_entries + 1)],
+    'coverage_details': [random.choice(['Basic', 'Extended']) for _ in range(num_entries)]
+})
+insurance_ids = insurance_info['insurance_id'].tolist()
+
+
+
+# Physician Data
+facility_names = [f'Facility {i+1}' for i, city in enumerate(all_cities)]
+physician_data = pd.DataFrame({
+    'physician_id': range(5001, 5001 + 50),  # 50 unique physicians
+    'name': [f'Doctor {i}' for i in range(1, 51)],
+    'specialization': [random.choice(['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'General']) for _ in range(50)],
+    'facility': random.choices(facility_names, k=50) 
+})
+physician_ids = physician_data['physician_id'].tolist()
+city_to_facility_map = {city: f'Facility {i+1}' for i, city in enumerate(all_cities)}
+physician_data['city'] = random.choices(all_cities, k=50)
+physician_data['facility'] = physician_data['city'].map(city_to_facility_map)
+
+
+
+# Claims Data
+claims_num_entries = 10000
+def random_date_in_2023():
+    start_date = datetime(2023, 1, 1)
+    end_date = datetime(2023, 12, 31)
+    time_between_dates = end_date - start_date
+    random_number_of_days = random.randrange(time_between_dates.days)
+    return start_date + pd.Timedelta(days=random_number_of_days)
+random_dates = [random_date_in_2023() for _ in range(claims_num_entries)]
+patient_to_insurance_map = dict(zip(insurance_info['patient_id'], insurance_info['insurance_id']))
+claims = pd.DataFrame({
+    'claim_id': range(1001, 1001 + claims_num_entries),
+    'patient_id': [random.choice(patient_data['patient_id']) for _ in range(claims_num_entries)],
+    'insurance_id': [patient_to_insurance_map[pid] for pid in claims['patient_id']],
+    'claim_date': [random_date_in_2023() for _ in range(claims_num_entries)],
+    'claim_status': [random.choice(['Paid', 'Pending']) for _ in range(claims_num_entries)]
+})
+
+
+
+
+# Claim Details Data
+detail_num_entries = 25000
+def random_date_in_2023():
+    start_date = datetime(2023, 1, 1)
+    end_date = datetime(2023, 12, 31)
+    time_between_dates = end_date - start_date
+    random_number_of_days = random.randrange(time_between_dates.days)
+    return start_date + pd.Timedelta(days=random_number_of_days)
+claim_ids_repeated = []
+for claim_id in claims['claim_id']:
+    num_details_for_this_claim = random.randint(1, 4)
+    claim_ids_repeated.extend([claim_id] * num_details_for_this_claim)
+procedure_codes = [f'PROC{str(i).zfill(3)}' for i in range(1, 51)]
+procedure_categories = {
+    'Cardiac': ['PROC001', 'PROC002', 'PROC003', 'PROC004', 'PROC005', 'PROC006','PROC007', 'PROC008', 'PROC009', 'PROC010'],  
+    'Neurology': ['PROC011', 'PROC012', 'PROC013', 'PROC014', 'PROC015', 'PROC016','PROC017', 'PROC018', 'PROC019', 'PROC020'],
+    'Orthopedics': ['PROC021', 'PROC022', 'PROC023', 'PROC024', 'PROC025', 'PROC026','PROC027', 'PROC028', 'PROC029', 'PROC030'],
+    'Pediatrics': ['PROC031', 'PROC032', 'PROC033', 'PROC034', 'PROC035', 'PROC036','PROC037', 'PROC038', 'PROC039', 'PROC040'],
+    'General': ['PROC041', 'PROC042', 'PROC043', 'PROC044', 'PROC045', 'PROC046','PROC047', 'PROC048', 'PROC049', 'PROC050'],
+}
+procedure_to_category = {proc: cat for cat, procs in procedure_categories.items() for proc in procs}
+physician_to_specialization = dict(zip(physician_data['physician_id'], physician_data['specialization']))
+def get_physician_for_procedure(procedure_code):
+    category = procedure_to_category.get(procedure_code, "General")
+    relevant_physicians = [pid for pid, spec in physician_to_specialization.items() if spec.startswith(category)]
+    return random.choice(relevant_physicians) if relevant_physicians else random.choice(physician_ids)
+base_cost_per_procedure = {code: random.randint(100, 500) for code in procedure_codes}
+def get_cost_for_procedure(procedure_code):
+    base_cost = base_cost_per_procedure[procedure_code]
+    spread = 0.1 * base_cost  # 10% of base cost
+    return round(random.uniform(base_cost - spread, base_cost + spread), 2)
+procedure_codes_for_claims = [random.choice(procedure_codes) for _ in range(len(claim_ids_repeated))]
+claim_to_patient_map = dict(zip(claims['claim_id'], claims['patient_id']))
+claim_to_physician_map = {}
+for claim_id in set(claim_ids_repeated):
+    procedure_code = claims_details[claims_details['claim_id'] == claim_id]['procedure'].iloc[0]
+    claim_to_physician_map[claim_id] = get_physician_for_procedure(procedure_code)
+patient_id_to_city = dict(zip(patient_data['patient_id'], patient_data['city']))
+physician_id_to_city = dict(zip(physician_data['physician_id'], physician_data['city']))
+
+def get_physician_for_city(patient_id):
+    patient_city = patient_id_to_city[patient_id]
+    eligible_physicians = [pid for pid, city in physician_id_to_city.items() if city == patient_city]
+    return random.choice(eligible_physicians) if eligible_physicians else random.choice(physician_ids)
+
+for claim_id in set(claim_ids_repeated):
+    patient_id = claim_to_patient_map[claim_id]
+    claim_to_physician_map[claim_id] = get_physician_for_city(patient_id)
+claims_details['physician_id'] = [claim_to_physician_map[claim_id] for claim_id in claims_details['claim_id']]
+
+claims_details = pd.DataFrame({
+    'claim_detail_id': range(4001, 4001 + len(claim_ids_repeated)),
+    'claim_id': claim_ids_repeated,
+    'patient_id': [claim_to_patient_map[claim_id] for claim_id in claim_ids_repeated],
+    'procedure': procedure_codes_for_claims,
+    'procedure_date': [random_date_in_2023() for _ in range(len(claim_ids_repeated))],
+    'cost': [get_cost_for_procedure(proc) for proc in procedure_codes_for_claims],
+    'physician_id': [claim_to_physician_map[claim_id] for claim_id in claim_ids_repeated]
+})
+def random_date_within_90_days(start_date):
+    end_date = start_date + pd.Timedelta(days=30)
+    time_between_dates = end_date - start_date
+    random_number_of_days = random.randrange(time_between_dates.days)
+    return start_date + pd.Timedelta(days=random_number_of_days)
+claim_date_mapping = dict(zip(claims['claim_id'], claims['claim_date']))
+claims_details['procedure_date'] = [
+    random_date_within_90_days(claim_date_mapping[claim_id]) 
+    for claim_id in claims_details['claim_id']
+]
+latest_procedure_dates = claims_details.groupby('claim_id')['procedure_date'].max()
+def generate_paid_off_date(row):
+    if row['claim_status'] == 'Pending':
+        return np.nan  # Return NaN for pending claims
+    claim_id = row['claim_id']
+    latest_procedure_date = latest_procedure_dates.get(claim_id, row['claim_date'])  # Fallback to claim_date if not found
+    claim_date = row['claim_date']
+    latest_date_to_consider = max(latest_procedure_date, claim_date)
+    days_to_add = random.randint(1, 30)  # Random number of days to add
+    return latest_date_to_consider + timedelta(days=days_to_add)
+claims['paid_off_date'] = claims.apply(generate_paid_off_date, axis=1)
+# Create a map of patient_id to city from patient_data
+patient_id_to_city = dict(zip(patient_data['patient_id'], patient_data['city']))
+
+# Create a map of physicians to cities
+physician_id_to_city = dict(zip(physician_data['physician_id'], physician_data['city']))
+
+# Filter physicians based on the patient's city for each claim
+def get_physician_for_city(patient_id):
+    patient_city = patient_id_to_city[patient_id]
+    eligible_physicians = [pid for pid, city in physician_id_to_city.items() if city == patient_city]
+    return random.choice(eligible_physicians) if eligible_physicians else random.choice(physician_ids)
+
+# Assign physicians in claims_details
+for claim_id in set(claim_ids_repeated):
+    patient_id = claim_to_patient_map[claim_id]
+    claim_to_physician_map[claim_id] = get_physician_for_city(patient_id)
+
+# Now update claims_details DataFrame
+claims_details['physician_id'] = [claim_to_physician_map[claim_id] for claim_id in claims_details['claim_id']]
+
+
+
+
+#Save to CSV
+base_directory = r"C:\Users\*****\Documents\healthcare it project"
+patient_data.to_csv(f"{base_directory}\\patient_data.csv", index=False)
+claims.to_csv(f"{base_directory}\\claims.csv", index=False)
+physician_data.to_csv(f"{base_directory}\\physician_data.csv", index=False)
+insurance_info.to_csv(f"{base_directory}\\insurance_info.csv", index=False)
+claims_details.to_csv(f"{base_directory}\\medical_procedures.csv", index=False)
+
